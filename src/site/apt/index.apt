@@ -1,0 +1,272 @@
+~~ @version $Revision$ ($Author$) $Date$
+~~ See this file format http://maven.apache.org/guides/mini/guide-apt-format.html
+
+                                    ------------------
+                                    Overview
+                                    ------------------
+
+
+proguard-maven-plugin
+
+* Overview
+
+  The proguard-maven-plugin is maven2 plugin to execute {{{http://proguard.sourceforge.net/}ProGuard}}
+
+* Parameters
+
+    Regular {{{proguard-mojo.html}proguard:proguard parameters}}
+
+    ** <<<libs>>> JVM libraries usually not in dependency list
+
+---
+    <libs>
+        <lib>${java.home}/lib/rt.jar</lib>
+        <lib>${java.home}/lib/jsse.jar</lib>
+    </libs>
+---
+
+    ** You can use <<<inFilter>>> to apply ProGuard {{{http://proguard.sourceforge.net/manual/usage.html#filters}classpathentry Filters}} to input jar
+
+---
+    <inFilter>!org/microemu/app/classloader/**</inFilter>
+---
+
+    ** You can use <<<outFilter>>> to apply ProGuard {{{http://proguard.sourceforge.net/manual/usage.html#filters}classpathentry Filters}} to output jar
+
+---
+    <outFilter>!**ECLIPSEF.*</outFilter>
+---
+
+    ** <<<exclusions>>> allow fine grain filter for dependency if includeDependency is enabled
+
+---
+    <exclusions>
+        <exclusion>
+            <groupId>org.grp</groupId><artifactId>art1</artifactId>
+        </exclusion>
+        <exclusion>
+            <!-- org.grp:art2 without classifier will still be included -->
+            <groupId>org.grp</groupId><artifactId>art2</artifactId><classifier>app<classifier>
+        </exclusion>
+    </exclusions>
+---
+
+    ** <<<assembly>>> allows to bundle project dependency to resulting jar with different options e.g. -injars ProGuard args.
+    Some flagged as <<<library>>> doesn`t need to be processed by ProGuard are added as -libraryjars and added to resulting jar by plugin after ProGuard is finished.
+    For clarity param <<<includeDependency>>> will just add -libraryjars arg to ProGuard and Dependency is not included in resulting jar.
+
+    You can use <<<assembly>>> to apply ProGuard {{{http://proguard.sourceforge.net/manual/usage.html#filters}classpathentry Filters}} to dependency jars
+
+---
+    <assembly>
+        <inclusions>
+            <inclusion>
+                <!-- add jar already prepossessed with different options -->
+                <groupId>org.microemu</groupId><artifactId>microemu-cldc</artifactId><classifier>4applet</classifier><library>true</library>
+                <!-- filter will not apply -->
+            </inclusion>
+            <inclusion>
+                <!-- filter out some classes see ProGuard classpathentry Filters -->
+                <groupId>org.microemu</groupId><artifactId>microemu-javase</artifactId>
+                <filter>!org/microemu/app/classloader/**</filter>
+            </inclusion>
+            <inclusion>
+                <groupId>org.microemu</groupId><artifactId>microemu-javase-swing</artifactId>
+            </inclusion>
+        </inclusions>
+        <exclusions>
+                <!-- artifactId supports wildcard for all artifacts or a regex for partial matching -->
+             <exclusion>
+                <groupId>org.thirdparty1</groupId><artifactId>*</artifactId>
+             </exclusion>
+             <exclusion>
+                 <groupId>org.thirdparty2</groupId><artifactId>util.*</artifactId>
+             </exclusion>
+        </exclusions
+    </assembly>
+---
+
+    ** ProGuard <<<options>>>
+
+        Some ProGuard options are created automatically
+
+        * <<<-dontobfuscate>>> When obfuscate is false
+
+        * <<<-libraryjars>>> Are created based on <<<libs>>> and your project dependencies when includeDependency is true (by default).
+
+        * <<<-verbose>>>  When executing <<<maven -X>>>
+
+        * <<<-printmapping>>> is based on the <<<mappingFileName>>> set in the configuration, defaults to '${project.build.directory}/<\<mappingFileName\>>', while <<<-printseeds>>> is based on <<<seedFileName>>> and defaults to '${project.build.directory}/<\<seedFileName\>>'
+
+        []
+
+    Additional ProGuard configuration can be added using {{{proguard-mojo.html#options}options}} or {{{proguard-mojo.html#proguardInclude}proguardInclude}}
+
+
+
+* Usage
+
+    Replace project artifact with obfuscated one. Original jar would be preserved in file project.build.finalName.jar_proguard_base.jar
+
+---
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <executions>
+                   <execution>
+                       <phase>package</phase>
+                       <goals><goal>proguard</goal></goals>
+                   </execution>
+                </executions>
+                <configuration>
+                    <options>
+                        <option>-allowaccessmodification</option>
+                        <option>-keep public class * extends java.applet.Applet { *; }</option>
+                    </options>
+                    <libs>
+                        <lib>${java.home}/lib/rt.jar</lib>
+                    </libs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+---
+
+  Create new file ${project.build.finalName}-small.jar
+
+---
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <executions>
+                   <execution>
+                       <phase>package</phase>
+                       <goals><goal>proguard</goal></goals>
+                   </execution>
+                </executions>
+                <configuration>
+                    <obfuscate>true</obfuscate>
+                    <injar>${project.build.finalName}.jar</injar>
+                    <outjar>${project.build.finalName}-small.jar</outjar>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <proguardInclude>${basedir}/proguard.conf</proguardInclude>
+                    <libs>
+                        <lib>${java.home}/lib/rt.jar</lib>
+                        <lib>${java.home}/lib/jsse.jar</lib>
+                    </libs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+---
+
+ Complex Applet creation example. See full {{{http://www.microemu.org/}MicroEmulator}} project sources for more details
+
+---
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.microemu</groupId>
+            <artifactId>microemu-midp</artifactId>
+            <version>${version}</version>
+            <classifier>4applet</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>org.microemu</groupId>
+            <artifactId>microemu-javase-swing</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>sun</groupId>
+            <artifactId>applet-jsobject</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <executions>
+                   <execution>
+                       <phase>package</phase>
+                       <goals><goal>proguard</goal></goals>
+                   </execution>
+                </executions>
+                <configuration>
+                    <proguardInclude>${basedir}/proguard.conf</proguardInclude>
+                    <assembly>
+                        <inclusions>
+                            <inclusion>
+                                <groupId>org.microemu</groupId><artifactId>microemu-cldc</artifactId><classifier>4applet</classifier><library>true</library>
+                            </inclusion>
+                            <inclusion>
+                                <groupId>org.microemu</groupId><artifactId>microemu-midp</artifactId><classifier>4applet</classifier><library>true</library>
+                            </inclusion>
+                            <inclusion>
+                                <groupId>org.microemu</groupId><artifactId>microemu-javase</artifactId>
+                                <filter>!org/microemu/app/classloader/**</filter>
+                            </inclusion>
+                            <inclusion>
+                                <groupId>org.microemu</groupId><artifactId>microemu-javase-swing</artifactId>
+                            </inclusion>
+                        </inclusions>
+                    </assembly>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.microemu</groupId><artifactId>microemu-midp</artifactId>
+                        </exclusion>
+                    </exclusions>
+                    <libs>
+                        <lib>${java.home}/lib/rt.jar</lib>
+                        <lib>${java.home}/lib/jsse.jar</lib>
+                    </libs>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+---
+
+    Use different version of {{{http://proguard.sourceforge.net/}ProGuard}}
+
+---
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <executions>
+                   <execution>
+                       <phase>package</phase>
+                       <goals><goal>proguard</goal></goals>
+                   </execution>
+                </executions>
+                <configuration>
+                    <proguardVersion>4.5</proguardVersion>
+                    <libs>
+                        <lib>${java.home}/lib/rt.jar</lib>
+                    </libs>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.sf.proguard</groupId>
+                        <artifactId>proguard-base</artifactId>
+                        <version>4.5</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+---
