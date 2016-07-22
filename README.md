@@ -187,6 +187,29 @@ Example:
 .......
 
 # 保留实现Action接口类中的公有的，友好的，私有的属性 和 公有的，友好的方法。其它的全部压缩，优化，混淆。
+
+因为我们开发的是webwork+spring+hibernate的架构的项目，所有需要很详细的配置。（经过n次失败后总结）
+
+Example:
+-injars <project>.jar
+-outjars <project>_out.jar
+-libraryjars <java.home>/lib/rt.jar
+-libraryjars <project.home>/webroot/WEB-INF/lib/webwork.jar
+.......
+
+# 保留实现Action接口类中的公有的，友好的，私有的属性 和 公有的，友好的方法。其它的全部压缩，优化，混淆。
+# 因为配置文件中的类名是一个完整的类名，如果经过处理后就有可能找不到这个类。
+# 属性是jsp页面所需要的，如果经过处理jsp页面就无法得到action中的数据。
+-keep public class * implements com.opensymphony.xwork.Action{
+public protected private <fields>;
+public protected <methods>;
+}
+# 保留实现了Serializable接口类中的公有的，友好的，私有的成员（属性和方法）
+# 这个配置主要是对应实体类的配置。
+-keep public class * implements java.io.Serializable{
+public protected private *;
+}
+......
 ```
 
 #ProGuard Maven Plugin
