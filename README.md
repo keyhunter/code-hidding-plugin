@@ -6,7 +6,8 @@ Code Hidding Plugin
 
 ##使用方法
 先进行Maven install
-在需要混淆代码的工程中加入此插件的依赖
+
+然后在需要混淆代码的工程中加入此插件的依赖
 ```xml
       <plugin>
 				<groupId>com.jiujie</groupId>
