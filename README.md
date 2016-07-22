@@ -5,7 +5,9 @@ Code Hidding Plugin
 基本支持Proguard的所有功能。
 
 博客地址：
+
 http://blog.csdn.net/connect_me/article/details/51320913
+
 http://www.cnblogs.com/uwannerme/
 
 ##使用方法
