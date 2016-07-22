@@ -1,5 +1,7 @@
 ProGuard Maven Plugin
 ---------------------
+在proguard-maven-plugin的基础上修改而来，仅供学习参考使用，可以在项目构建过的时候把代码混淆，支持打成jar包和war包。
+基本支持Proguard的所有功能。
 
 Run [ProGuard] as part of your [Maven] build. For usage, please read the
 generated [Documentation](http://wvengen.github.io/proguard-maven-plugin/).
