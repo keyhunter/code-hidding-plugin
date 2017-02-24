@@ -15,33 +15,33 @@ http://www.cnblogs.com/uwannerme/
 
 然后在需要混淆代码的工程中加入此插件的依赖
 ```xml
-      <plugin>
-				<groupId>com.jiujie</groupId>
-				<artifactId>code-hidding-plugin</artifactId>
-				<version>1.0</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>proguard</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<obfuscate>true</obfuscate>
-					<attach>true</attach>
-					<injar>classes</injar>
-					<attachArtifactClassifier>pg</attachArtifactClassifier>
-					attach 的作用是在 install 与 deploy 时将生成的 pg 文件也安装与部署
-					<proguardInclude>${basedir}/proguard.conf</proguardInclude>
-					<outjar>${project.build.finalName}-pg</outjar>
-					<libs>
-						<lib>${java.home}/lib/rt.jar</lib>
-						<lib>${java.home}/lib/jsse.jar</lib>
-					</libs>
-					<addMavenDescriptor>false</addMavenDescriptor>
-				</configuration>
-			</plugin>
+<plugin>
+	<groupId>com.jiujie</groupId>
+	<artifactId>code-hidding-plugin</artifactId>
+	<version>1.0</version>
+	<executions>
+		<execution>
+			<phase>package</phase>
+			<goals>
+				<goal>proguard</goal>
+			</goals>
+		</execution>
+	</executions>
+	<configuration>
+		<obfuscate>true</obfuscate>
+		<attach>true</attach>
+		<injar>classes</injar>
+		<attachArtifactClassifier>pg</attachArtifactClassifier>
+		<!-- attach 的作用是在 install 与 deploy 时将生成的 pg 文件也安装与部署-->
+		<proguardInclude>${basedir}/proguard.conf</proguardInclude>
+		<outjar>${project.build.finalName}-pg</outjar>
+		<libs>
+			<lib>${java.home}/lib/rt.jar</lib>
+			<lib>${java.home}/lib/jsse.jar</lib>
+		</libs>
+		<addMavenDescriptor>false</addMavenDescriptor>
+	</configuration>
+</plugin>
 ```
 在工程根目录下加入工程配置文件proguard.conf
 ```properties
