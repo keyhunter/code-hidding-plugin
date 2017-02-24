@@ -1,7 +1,7 @@
 Code Hidding Plugin
 ---------------------
 #说明
-在proguard-maven-plugin的基础上修改而来，仅供学习参考使用，可以在项目构建过的时候把代码混淆，支持打成jar包和war包。
+在proguard-maven-plugin的基础上修改而来，可以在项目构建过的时候把代码混淆，支持打成jar包和war包。
 基本支持Proguard的所有功能。
 
 博客地址：
